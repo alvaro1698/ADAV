@@ -1,0 +1,12 @@
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Alvaro/Proyectos_vivado/Practica_A2/Practica_A2.srcs/sources_1/imports/Archivos/control.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'control'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Alvaro/Proyectos_vivado/Practica_A2/Practica_A2.srcs/sources_1/imports/Archivos/datapath.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'datapath'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Alvaro/Proyectos_vivado/Practica_A2/Practica_A2.srcs/sources_1/imports/Archivos/int_entrada.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'interfaz_entrada'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Alvaro/Proyectos_vivado/Practica_A2/Practica_A2.srcs/sources_1/imports/Archivos/int_salida.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'interfaz_salida'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Alvaro/Proyectos_vivado/Practica_A2/Practica_A2.srcs/sources_1/imports/Archivos/top.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'top'
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/Users/Alvaro/Proyectos_vivado/Practica_A2/Practica_A2.srcs/sources_1/imports/Archivos/tb_top.vhd" into library xil_defaultlib
+INFO: [VRFC 10-3107] analyzing entity 'tb_top'

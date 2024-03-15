@@ -1,0 +1,10 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../Archivos/datapath.vhd" \
+"../../../../Archivos/int_entrada.vhd" \
+"../../../../Archivos/int_salida.vhd" \
+"../../../../Archivos/top.vhd" \
+"../../../../Archivos/tb_top.vhd" \
+
+# Do not sort compile order
+nosort
