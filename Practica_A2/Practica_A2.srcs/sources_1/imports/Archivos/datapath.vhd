@@ -3,28 +3,47 @@ USE IEEE.std_logic_1164.all;
 USE IEEE.std_logic_arith.all;
 USE IEEE.std_logic_signed.all;
 
-ENTITY datapath IS 
+entity datapath is 
   PORT (
      reset, clk    : in std_logic;
+     c_m2d          : out std_logic_vector(3 downto 0); -- Control mux2 del multiplicador
+     c_m1d          : out std_logic_vector(2 downto 0); -- Control mux1 del multiplicador
+     c_s2d          : out std_logic_vector(2 downto 0); -- Control mux2 del RippleCarry
+     c_s1d          : out std_logic_vector(2 downto 0); -- Control mux1 del RippleCarry
+     r_moded        : out std_logic; -- Señal de control del modo del RippleCarry
      comandos      : in std_logic_vector(7 downto 0);
      entradas      : in std_logic_vector(23 downto 0);  
      salidas       : out std_logic_vector(23 downto 0);  
      flags         : out std_logic_vector(7 downto 0) );
-END datapath;
+end datapath;
 
-ARCHITECTURE behavior OF datapath IS
+architecture behavior OF datapath is
+    
+    signal r1, r2, r3, r4, r5, r6 : std_logic_vector (23 downto 0);
+    signal r1_comb, r2_comb, r3_comb, r4_comb : std_logic_vector(23 downto 0);
 
-	signal tmp0 : std_logic_vector(23 downto 0);
-	signal tmp1, tmp2, tmp3, tmp4, tmp5 : std_logic_vector(23 downto 0);
-	signal tmp6, tmp7, tmp8, tmp9, tmp10 : std_logic_vector(23 downto 0);
-	signal tmp11, tmp12, tmp13, tmp14, tmp15 : std_logic_vector(23 downto 0);
-	signal tmp16, tmp17, tmp18: std_logic_vector(23 downto 0);
+--	signal tmp0 : std_logic_vector(23 downto 0); -- r1
+--	signal tmp1, tmp2, tmp3, tmp4, tmp5 : std_logic_vector(23 downto 0); -- r2
+--	signal tmp6 : std_logic_vector(23 downto 0); -- r1
+--	signal tmp7 : std_logic_vector(23 downto 0); -- r5
+--	signal tmp8 : std_logic_vector(23 downto 0); -- r4
+--	signal tmp9, tmp10 : std_logic_vector(23 downto 0); -- r3
+--	signal tmp11 : std_logic_vector(23 downto 0); -- r6
+--	signal tmp12, tmp13 : std_logic_vector(23 downto 0); -- r4
+--	signal tmp14 : std_logic_vector(23 downto 0); -- r1
+--	signal tmp15 : std_logic_vector(23 downto 0); -- r6
+--	signal tmp16 : std_logic_vector(23 downto 0); -- r5
+--	signal tmp17 : std_logic_vector(23 downto 0); -- r4
+--	signal tmp18 : std_logic_vector(23 downto 0); -- r1
 
-	signal m_tmp1, m_tmp2, m_tmp3, m_tmp4, m_tmp5 : std_logic_vector(47 downto 0);
-	signal m_tmp10, m_tmp11, m_tmp12, m_tmp13, m_tmp14: std_logic_vector(47 downto 0);
+--	signal m_tmp1, m_tmp2, m_tmp3, m_tmp4, m_tmp5 : std_logic_vector(47 downto 0);
+--	signal m_tmp10, m_tmp11, m_tmp12, m_tmp13, m_tmp14: std_logic_vector(47 downto 0);
 
-	signal sv1, sv2, sv3, sv4 : std_logic_vector(23 downto 0);
-	signal sv1_comb, sv2_comb, sv3_comb, sv4_comb : std_logic_vector(23 downto 0);
+--	signal sv1 : std_logic_vector(23 downto 0); -- r3
+--	signal sv2 : std_logic_vector(23 downto 0); -- r4
+--	signal sv3 : std_logic_vector(23 downto 0); -- r5
+--	signal sv4 : std_logic_vector(23 downto 0); -- r6
+--	signal sv1_comb, sv2_comb, sv3_comb, sv4_comb : std_logic_vector(23 downto 0);
 
 	constant b1 : std_logic_vector(23 downto 0) := "00000000" & "00000100" & "11000000";
 	constant b2 : std_logic_vector(23 downto 0) := "00000000" & "00010011" & "00000010";
@@ -38,9 +57,42 @@ ARCHITECTURE behavior OF datapath IS
 	constant neg_a4 : std_logic_vector(23 downto 0) := "00000000" & "01111100" & "00000001";
 	constant neg_a5 : std_logic_vector(23 downto 0) := "11111111" & "11101100" & "01111111";
 
-BEGIN  
-      Proc_seq : PROCESS (reset, clk)
-      BEGIN
+	signal r_A, r_B, m_A, m_B : std_logic_vector(23 downto 0); -- Señales de entrada de los operadores
+	signal r_out, m_out : std_logic_vector(23 downto 0); -- Señales de salida de los operadores
+	signal r_cout : std_logic; -- Señal de Carry out (no usado).
+
+    component RippleCarry is
+        Port ( Ar : in STD_LOGIC_VECTOR(23 downto 0);
+               Br : in STD_LOGIC_VECTOR(23 downto 0);
+               Mode : in STD_LOGIC; -- 1 acciona el modo resta y 0 acciona modo suma
+               Sr : out STD_LOGIC_VECTOR(23 downto 0);
+               Coutr : out STD_LOGIC);
+    end component;
+    
+    component Multiplicador is
+        Port ( Am : in STD_LOGIC_VECTOR (23 downto 0);
+               Bm : in STD_LOGIC_VECTOR (23 downto 0);
+               Sm : out STD_LOGIC_VECTOR (23 downto 0));
+    end component;
+
+begin
+    
+    RippleCarry0 : RippleCarry
+        port map ( Ar => r_A,
+                   Br => r_B,
+                   Mode => r_moded,
+                   Sr => r_out,
+                   Coutr => r_cout  
+        );
+    
+    Multiplicador0 : Multiplicador
+        port map ( Am => m_A,
+                   Bm => m_B,
+                   Sm => m_out
+        );    
+        
+    Proc_seq : PROCESS (reset, clk)
+    begin
            IF reset='0' THEN
 		      sv1 <= (others => '0');		sv2 <= (others => '0');
 		      sv3 <= (others => '0');		sv4 <= (others => '0');

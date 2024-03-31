@@ -20,7 +20,12 @@ ARCHITECTURE behavior OF top IS
 COMPONENT datapath IS 
   PORT (
      reset, clk    : in std_logic;
-     comandos      : in std_logic_vector(7 downto 0);
+     c_m2d          : out std_logic_vector(3 downto 0); -- Control mux2 del multiplicador
+     c_m1d          : out std_logic_vector(2 downto 0); -- Control mux1 del multiplicador
+     c_s2d          : out std_logic_vector(2 downto 0); -- Control mux2 del RippleCarry
+     c_s1d          : out std_logic_vector(2 downto 0); -- Control mux1 del RippleCarry
+     r_moded        : out std_logic; -- Señal de control del modo del RippleCarry
+     comandos      : out std_logic_vector(11 downto 0);
      entradas      : in std_logic_vector(23 downto 0);  
      salidas       : out std_logic_vector(23 downto 0);  
      flags         : out std_logic_vector(7 downto 0) );
@@ -31,7 +36,12 @@ COMPONENT control IS
      reset, clk    : in std_logic;
      validacion    : in std_logic;
      flags         : in  std_logic_vector(7 downto 0);
-     comandos      : out std_logic_vector(7 downto 0);
+     c_m2c          : out std_logic_vector(3 downto 0); -- Control mux2 del multiplicador
+     c_m1c          : out std_logic_vector(2 downto 0); -- Control mux1 del multiplicador
+     c_s2c          : out std_logic_vector(2 downto 0); -- Control mux2 del RippleCarry
+     c_s1c          : out std_logic_vector(2 downto 0); -- Control mux1 del RippleCarry
+     r_modec        : out std_logic; -- Señal de control del modo del RippleCarry
+     comandos      : out std_logic_vector(11 downto 0);
      fin           : out std_logic );
 END component;
 
@@ -56,8 +66,12 @@ END component;
 
 
   SIGNAL entradas, salidas : std_logic_vector(23 downto 0);
-  SIGNAL comandos, flags : std_logic_vector(7 downto 0);
-  SIGNAL fin : std_logic;
+  SIGNAL flags : std_logic_vector(7 downto 0);
+  SIGNAL comandos : std_logic_vector(11 downto 0);
+  SIGNAL fin, mode : std_logic;
+  signal c_m2 : std_logic_vector(3 downto 0);
+  signal c_m1, c_s2, c_s1 : std_logic_vector(2 downto 0);
+  signal r_mode : std_logic;
 
   
 BEGIN  
@@ -66,6 +80,11 @@ BEGIN
 U1 : datapath 
      PORT MAP (reset => reset,
                clk => clk, 
+               c_m2d => c_m2,
+               c_m1d => c_m1,
+               c_s2d => c_s2, 
+               c_s1d => c_s1, 
+               r_moded => r_mode,
                comandos => comandos, 
                entradas => entradas, 
                salidas => salidas, 
@@ -74,7 +93,12 @@ U1 : datapath
 U2 : control 
      PORT MAP (reset => reset, 
                clk => clk, 
-               validacion => validacion, 
+               validacion => validacion,
+               c_m2c => c_m2,
+               c_m1c => c_m1,
+               c_s2c => c_s2, 
+               c_s1c => c_s1, 
+               r_modec => r_mode,
                comandos => comandos, 
                flags => flags, 
                fin => fin );
