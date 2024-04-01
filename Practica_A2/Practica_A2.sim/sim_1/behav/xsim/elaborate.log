@@ -15,6 +15,9 @@ Compiling package ieee.std_logic_textio
 Compiling package ieee.std_logic_arith
 Compiling package ieee.std_logic_unsigned
 Compiling package ieee.std_logic_signed
+Compiling architecture behavioral of entity xil_defaultlib.FullAdder [fulladder_default]
+Compiling architecture behavioral of entity xil_defaultlib.RippleCarry [ripplecarry_default]
+Compiling architecture behavioral of entity xil_defaultlib.Multiplicador [multiplicador_default]
 Compiling architecture behavior of entity xil_defaultlib.datapath [datapath_default]
 Compiling architecture behavior of entity xil_defaultlib.control [control_default]
 Compiling architecture behavior of entity xil_defaultlib.interfaz_entrada [interfaz_entrada_default]

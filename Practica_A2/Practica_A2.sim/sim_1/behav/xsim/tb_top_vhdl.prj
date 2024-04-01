@@ -1,5 +1,8 @@
 # compile vhdl design source files
 vhdl xil_defaultlib  \
+"../../../../Practica_A2.srcs/sources_1/new/FullAdder.vhd" \
+"../../../../Practica_A2.srcs/sources_1/new/Multiplicador.vhd" \
+"../../../../Practica_A2.srcs/sources_1/new/RippleCarry.vhd" \
 "../../../../Practica_A2.srcs/sources_1/imports/Archivos/control.vhd" \
 "../../../../Practica_A2.srcs/sources_1/imports/Archivos/datapath.vhd" \
 "../../../../Practica_A2.srcs/sources_1/imports/Archivos/int_entrada.vhd" \
