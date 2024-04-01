@@ -46,6 +46,6 @@ architecture Behavioral of Multiplicador is
 begin
     
     m <= Am * Bm;
-    Sm <= m(39 downto 16);
+    Sm <= m(39 downto 16); -- Realizamos la cuantificación
 
 end Behavioral;
