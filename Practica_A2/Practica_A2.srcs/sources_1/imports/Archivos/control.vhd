@@ -13,6 +13,7 @@ ENTITY control IS
      c_s2c          : out std_logic_vector(2 downto 0); -- Control mux2 del RippleCarry
      c_s1c          : out std_logic_vector(2 downto 0); -- Control mux1 del RippleCarry
      r_modec        : out std_logic; -- Señal de control del modo del RippleCarry
+     c_sc           : out std_logic; -- Señal de control de la salida     
      comandos      : out std_logic_vector(11 downto 0);
      fin           : out std_logic );
 END control;
@@ -48,6 +49,7 @@ BEGIN
           c_s2c <= "000";
           c_s1c <= "000";
           r_modec <= '0';
+          c_sc <= '0';
           fin <= '0';      
      ELSE   
           comandos <= "000000000000";
@@ -56,6 +58,7 @@ BEGIN
           c_s2c <= "000";
           c_s1c <= "000";
           r_modec <= '0';
+          c_sc <= '0';
           fin <= '0';  
           
           CASE estado IS
@@ -65,7 +68,8 @@ BEGIN
                   c_m1c <= "000";
                   c_s2c <= "000"; 
                   c_s1c <= "000";
-                  r_modec <= '0';   
+                  r_modec <= '0';
+                  c_sc <= '0';   
                WHEN ck1 =>
                   comandos <= "000000000010";
                   c_m2c <= "0001";
@@ -73,6 +77,7 @@ BEGIN
                   c_s2c <= "000"; 
                   c_s1c <= "000";
                   r_modec <= '0';  
+                  c_sc <= '0';
                WHEN ck2 =>
                   comandos <= "000000000100";
                   c_m2c <= "0010";
@@ -80,6 +85,7 @@ BEGIN
                   c_s2c <= "011"; 
                   c_s1c <= "010";
                   r_modec <= '0';
+                  c_sc <= '0';
                WHEN ck3 =>
                   comandos <= "000000001000";
                   c_m2c <= "0011";
@@ -87,6 +93,7 @@ BEGIN
                   c_s2c <= "100"; 
                   c_s1c <= "010";
                   r_modec <= '0';
+                  c_sc <= '0';
                WHEN ck4 =>
                   comandos <= "000000010000";
                   c_m2c <= "0100";
@@ -94,6 +101,7 @@ BEGIN
                   c_s2c <= "101"; 
                   c_s1c <= "010";
                   r_modec <= '0';
+                  c_sc <= '0';
                WHEN ck5 =>
                   comandos <= "000000100000";
                   c_m2c <= "0101";
@@ -101,6 +109,7 @@ BEGIN
                   c_s2c <= "110"; 
                   c_s1c <= "010";
                   r_modec <= '0';
+                  c_sc <= '0';
                WHEN ck6 =>
                   comandos <= "000001000000";
                   c_m2c <= "0110";
@@ -108,6 +117,7 @@ BEGIN
                   c_s2c <= "000"; 
                   c_s1c <= "000";
                   r_modec <= '0';
+                  c_sc <= '1';
                WHEN ck7 =>
                   comandos <= "000010000000";
                   c_m2c <= "0111";
@@ -115,6 +125,7 @@ BEGIN
                   c_s2c <= "000"; 
                   c_s1c <= "000";
                   r_modec <= '0';
+                  c_sc <= '1';
                WHEN ck8 =>
                   comandos <= "000100000000";
                   c_m2c <= "1000";
@@ -122,6 +133,7 @@ BEGIN
                   c_s2c <= "110"; 
                   c_s1c <= "100";
                   r_modec <= '0';
+                  c_sc <= '1';
                WHEN ck9 =>
                   comandos <= "001000000000";
                   c_m2c <= "1001";
@@ -129,6 +141,7 @@ BEGIN
                   c_s2c <= "100"; 
                   c_s1c <= "101";
                   r_modec <= '0';
+                  c_sc <= '1';
                WHEN ck10 =>
                   comandos <= "010000000000";
                   c_m2c <= "1010";
@@ -136,6 +149,7 @@ BEGIN
                   c_s2c <= "100"; 
                   c_s1c <= "001";
                   r_modec <= '0';
+                  c_sc <= '1';
 	           WHEN ck11 =>
 	              comandos <= "100000000000";
 	              c_m2c <= "0000";
@@ -143,6 +157,7 @@ BEGIN
                   c_s2c <= "001"; 
                   c_s1c <= "010";
                   r_modec <= '0';
+                  c_sc <= '1';
 	              fin <= '1';
                WHEN others => 
          END CASE;

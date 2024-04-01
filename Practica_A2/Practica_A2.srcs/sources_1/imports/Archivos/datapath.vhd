@@ -6,12 +6,13 @@ USE IEEE.std_logic_signed.all;
 entity datapath is 
   PORT (
      reset, clk    : in std_logic;
-     c_m2d          : out std_logic_vector(3 downto 0); -- Control mux2 del multiplicador
-     c_m1d          : out std_logic_vector(2 downto 0); -- Control mux1 del multiplicador
-     c_s2d          : out std_logic_vector(2 downto 0); -- Control mux2 del RippleCarry
-     c_s1d          : out std_logic_vector(2 downto 0); -- Control mux1 del RippleCarry
-     r_moded        : out std_logic; -- Señal de control del modo del RippleCarry
-     comandos      : in std_logic_vector(7 downto 0);
+     c_m2d          : in std_logic_vector(3 downto 0); -- Control mux2 del multiplicador
+     c_m1d          : in std_logic_vector(2 downto 0); -- Control mux1 del multiplicador
+     c_s2d          : in std_logic_vector(2 downto 0); -- Control mux2 del RippleCarry
+     c_s1d          : in std_logic_vector(2 downto 0); -- Control mux1 del RippleCarry
+     r_moded        : in std_logic; -- Señal de control del modo del RippleCarry
+     c_sd           : in std_logic; -- Señal de control de la salida 
+     comandos      : in std_logic_vector(11 downto 0);
      entradas      : in std_logic_vector(23 downto 0);  
      salidas       : out std_logic_vector(23 downto 0);  
      flags         : out std_logic_vector(7 downto 0) );
@@ -20,7 +21,7 @@ end datapath;
 architecture behavior OF datapath is
     
     signal r1, r2, r3, r4, r5, r6 : std_logic_vector (23 downto 0);
-    signal r1_comb, r2_comb, r3_comb, r4_comb : std_logic_vector(23 downto 0);
+    signal r1_comb, r2_comb, r3_comb, r4_comb, r5_comb, r6_comb : std_logic_vector(23 downto 0); -- Señales de entrada de los FFs
 
 --	signal tmp0 : std_logic_vector(23 downto 0); -- r1
 --	signal tmp1, tmp2, tmp3, tmp4, tmp5 : std_logic_vector(23 downto 0); -- r2
@@ -90,62 +91,220 @@ begin
                    Bm => m_B,
                    Sm => m_out
         );    
-        
-    Proc_seq : PROCESS (reset, clk)
-    begin
-           IF reset='0' THEN
-		      sv1 <= (others => '0');		sv2 <= (others => '0');
-		      sv3 <= (others => '0');		sv4 <= (others => '0');
-           ELSIF (clk'event AND clk='1') THEN
-		     IF comandos(0)='1' THEN
-		        sv1 <= sv1_comb;		sv2 <= sv2_comb;
-		        sv3 <= sv3_comb;		sv4 <= sv4_comb;
-             END IF; 
-           END IF; 
-      END PROCESS;
-	  
-	flags <= (others => '0');
+    
+Proc_Muxes_com : PROCESS (reset, comandos, c_m2d, c_m1d, c_s2d, c_s1d, r_moded, c_sd)
+BEGIN
+     IF reset='0' THEN
+          m_A <= (others => '0');
+          m_B <= (others => '0');
+          r_A <= (others => '0');
+          r_B <= (others => '0');
+          r1_comb <= (others => '0');
+          r2_comb <= (others => '0');
+          r3_comb <= (others => '0');
+          r4_comb <= (others => '0');
+          r5_comb <= (others => '0');
+          r6_comb <= (others => '0');
+          salidas <= (others => '0');
+     ELSE   
+          m_A <= (others => '0');
+          m_B <= (others => '0');
+          r_A <= (others => '0');
+          r_B <= (others => '0');
+          r1_comb <= (others => '0');
+          r2_comb <= (others => '0');
+          r3_comb <= (others => '0');
+          r4_comb <= (others => '0');
+          r5_comb <= (others => '0');
+          salidas <= (others => '0');         
+          
+          CASE c_m1d IS
+               WHEN "000" => m_B <= (others => '0');
+               
+               WHEN "001" => m_B <= r1;
+               
+               WHEN "011" => m_B <= r3;
+               
+               WHEN "100" => m_B <= r4;
+               
+               WHEN "110" => m_B <= r6;
+               
+               WHEN others => 
+          END CASE;
+          
+          CASE c_m2d IS
+               WHEN "0000" => m_A <= (others => '0');
+               
+               WHEN "0001" => m_A <= b1;
+               
+               WHEN "0010" => m_A <= b2;
+               
+               WHEN "0011" => m_A <= b3;
+               
+               WHEN "0100" => m_A <= b4;
+               
+               WHEN "0101" => m_A <= b5;
+               
+               WHEN "0110" => m_A <= inv_a1;
+               
+               WHEN "0111" => m_A <= neg_a2;
+               
+               WHEN "1000" => m_A <= neg_a3;
+               
+               WHEN "1001" => m_A <= neg_a4;
+               
+               WHEN "1010" => m_A <= neg_a5;
+               
+               WHEN others => 
+          END CASE;
+          
+          CASE c_s1d IS
+               WHEN "000" => r_B <= (others => '0');
+               
+               WHEN "001" => r_B <= r1;
+               
+               WHEN "010" => r_B <= r2;
+               
+               WHEN "100" => r_B <= r4;
+               
+               WHEN "101" => r_B <= r5;
+               
+               WHEN others => 
+          END CASE;
+          
+          CASE c_s2d IS
+               WHEN "000" => r_A <= (others => '0');
+               
+               WHEN "001" => r_A <= r1;
+               
+               WHEN "011" => r_A <= r3;
+               
+               WHEN "100" => r_A <= r4;
+               
+               WHEN "101" => r_A <= r5;
+               
+               WHEN "110" => r_A <= r6;
+               
+               WHEN others => 
+          END CASE;
+          
+          CASE comandos IS
+               WHEN "000000000001" =>
+                  r1_comb <= entradas;
+                  r2_comb <= (others => '0');
+                  r3_comb <= (others => '0');
+                  r4_comb <= (others => '0');
+                  r5_comb <= (others => '0');
+                  r6_comb <= (others => '0');
+               WHEN "000000000010" =>
+                  r1_comb <= entradas;
+                  r2_comb <= m_out;
+                  r3_comb <= (others => '0');
+                  r4_comb <= (others => '0');
+                  r5_comb <= (others => '0');
+                  r6_comb <= (others => '0');
+               WHEN "000000000100" =>
+                  r1_comb <= entradas;
+                  r2_comb <= m_out;
+                  r3_comb <= r_out;
+                  r4_comb <= (others => '0');
+                  r5_comb <= (others => '0');
+                  r6_comb <= (others => '0');
+               WHEN "000000001000" =>
+                  r1_comb <= entradas;
+                  r2_comb <= m_out;
+                  r3_comb <= (others => '0');
+                  r4_comb <= r_out;
+                  r5_comb <= (others => '0');
+                  r6_comb <= (others => '0');
+               WHEN "000000010000" =>
+                  r1_comb <= entradas;
+                  r2_comb <= m_out;
+                  r3_comb <= (others => '0');
+                  r4_comb <= (others => '0');
+                  r5_comb <= r_out;
+                  r6_comb <= (others => '0');
+               WHEN "000000100000" =>
+                  r1_comb <= r_out;
+                  r2_comb <= m_out;
+                  r3_comb <= (others => '0');
+                  r4_comb <= (others => '0');
+                  r5_comb <= (others => '0');
+                  r6_comb <= (others => '0');
+               WHEN "000001000000" =>
+                  r1_comb <= (others => '0');
+                  r2_comb <= (others => '0');
+                  r3_comb <= m_out;
+                  r4_comb <= (others => '0');
+                  r5_comb <= (others => '0');
+                  r6_comb <= (others => '0');
+               WHEN "000010000000" =>
+                  r1_comb <= (others => '0');
+                  r2_comb <= (others => '0');
+                  r3_comb <= (others => '0');
+                  r4_comb <= (others => '0');
+                  r5_comb <= (others => '0');
+                  r6_comb <= m_out;
+               WHEN "000100000000" =>
+                  r1_comb <= (others => '0');
+                  r2_comb <= (others => '0');
+                  r3_comb <= (others => '0');
+                  r4_comb <= m_out;
+                  r5_comb <= (others => '0');
+                  r6_comb <= r_out;
+               WHEN "001000000000" =>
+                  r1_comb <= (others => '0');
+                  r2_comb <= (others => '0');
+                  r3_comb <= (others => '0');
+                  r4_comb <= m_out;
+                  r5_comb <= r_out;
+                  r6_comb <= (others => '0');
+               WHEN "010000000000" =>
+                  r1_comb <= m_out;
+                  r2_comb <= (others => '0');
+                  r3_comb <= (others => '0');
+                  r4_comb <= r_out;
+                  r5_comb <= (others => '0');
+                  r6_comb <= (others => '0');
+               WHEN "100000000000" =>
+                  r1_comb <= r_out;
+                  r2_comb <= (others => '0');
+                  r3_comb <= (others => '0');
+                  r4_comb <= (others => '0');
+                  r5_comb <= (others => '0');
+                  r6_comb <= (others => '0');
+               WHEN others => 
+         END CASE;
+         
+          CASE c_sd IS
+               WHEN '0' => salidas <= (others => '0');
+               
+               WHEN '1' => salidas <= r3;
+               
+               WHEN others => 
+          END CASE;         
+          
+     END IF;
+END PROCESS;
 
-  	tmp0 <= entradas;
-  	m_tmp1 <= tmp0 * b1;
-  		tmp1 <= m_tmp1(39 downto 16);
-  	m_tmp2 <= tmp0 * b2;
-  		tmp2 <= m_tmp2(39 downto 16);
-  	m_tmp3 <= tmp0 * b3;
-  		tmp3 <= m_tmp3(39 downto 16);
-  	m_tmp4 <= tmp0 * b4;
-  		tmp4 <= m_tmp4(39 downto 16);
-  	m_tmp5 <= tmp0 * b5;
-  		tmp5 <= m_tmp5(39 downto 16);
-
-  	tmp6 <= tmp4 + sv4;
-  	tmp7 <= tmp3 + sv3;
-  	tmp8 <= tmp2 + sv2;
-  	tmp9 <= tmp1 + sv1;
-
-  	m_tmp10 <= tmp9 * inv_a1;
-  		tmp10 <= m_tmp10(39 downto 16);
-  	m_tmp11 <= tmp10 * neg_a2;
-  		tmp11 <= m_tmp11(39 downto 16);
-  	m_tmp12 <= tmp10 * neg_a3;
-  		tmp12 <= m_tmp12(39 downto 16);
-  	m_tmp13 <= tmp10 * neg_a4;
-  		tmp13 <= m_tmp13(39 downto 16);
-  	m_tmp14 <= tmp10 * neg_a5;
-  		tmp14 <= m_tmp14(39 downto 16);
-
-  	tmp15 <= tmp8 + tmp11;
-  	tmp16 <= tmp7 + tmp12;
-  	tmp17 <= tmp6 + tmp13;
-  	tmp18 <= tmp5 + tmp14;
-
-	
-	salidas <= tmp10;
-
-  	sv4_comb <= tmp18;
-  	sv3_comb <= tmp17;
-  	sv2_comb <= tmp16;
-  	sv1_comb <= tmp15;
+Proc_seq : PROCESS (reset, clk)
+BEGIN
+     IF reset='0' THEN   
+        r1 <= (others => '0');
+        r2 <= (others => '0');
+        r3 <= (others => '0');
+        r4 <= (others => '0');
+        r5 <= (others => '0');
+        r6 <= (others => '0');
+     ELSIF (clk'event AND clk='1') THEN
+        r1 <= r1_comb;
+        r2 <= r2_comb;
+        r3 <= r3_comb;
+        r4 <= r4_comb;
+        r5 <= r5_comb;
+        r6 <= r6_comb;
+     END IF; 
+END PROCESS;   
 
 -- dec2bin(floor(-1.275613*2^16)) OctaveOnline
 END behavior;
